@@ -54,5 +54,30 @@
       el.textContent = `${m}:${s.toString().padStart(2, "0")}`;
     }, 1000);
   })();
+  
+  // Animate OTP form
+  gsap.from('.bg-white.p-6', {
+    duration: 0.8,
+    scale: 0.9,
+    opacity: 0,
+    ease: "back.out(1.7)",
+    delay: 0.2
+  });
+  
+  // Animate form elements
+  gsap.from('h2, p, input, button', {
+    duration: 0.5,
+    y: 20,
+    opacity: 0,
+    ease: "power2.out",
+    stagger: 0.1,
+    delay: 0.5
+  });
+  
+  // OTP input animation
+  const otpInput = document.querySelector('input[name="otp"]');
+  otpInput.addEventListener('input', () => {
+    gsap.to(otpInput, {duration: 0.1, scale: 1.02, ease: "power2.out", yoyo: true, repeat: 1});
+  });
 </script>
 {% endblock %}

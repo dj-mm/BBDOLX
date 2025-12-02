@@ -33,5 +33,25 @@
       'focus:outline-none','focus:ring-2','focus:ring-teal-500'
     );
   });
+  
+  // Animate form fields
+  gsap.from('.text-sm', {
+    duration: 0.5,
+    y: 15,
+    opacity: 0,
+    ease: "power2.out",
+    stagger: 0.1,
+    delay: 0.3
+  });
+  
+  // Form input focus animations
+  document.querySelectorAll('input, select, textarea').forEach(input => {
+    input.addEventListener('focus', () => {
+      gsap.to(input, {duration: 0.3, scale: 1.01, ease: "power2.out"});
+    });
+    input.addEventListener('blur', () => {
+      gsap.to(input, {duration: 0.3, scale: 1, ease: "power2.out"});
+    });
+  });
 </script>
 {% endblock %}

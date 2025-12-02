@@ -15,4 +15,35 @@
     </button>
   </form>
 </div>
+
+<script>
+  // Animate reject form
+  gsap.from('.bg-white.rounded-2xl', {
+    duration: 0.7,
+    y: 30,
+    opacity: 0,
+    ease: "power2.out",
+    delay: 0.2
+  });
+  
+  // Animate form elements
+  gsap.from('h1, label, textarea, button', {
+    duration: 0.5,
+    y: 15,
+    opacity: 0,
+    ease: "power2.out",
+    stagger: 0.1,
+    delay: 0.4
+  });
+  
+  // Textarea focus animation
+  const textarea = document.querySelector('textarea');
+  textarea.addEventListener('focus', () => {
+    gsap.to(textarea, {duration: 0.3, scale: 1.01, ease: "power2.out"});
+  });
+  textarea.addEventListener('blur', () => {
+    gsap.to(textarea, {duration: 0.3, scale: 1, ease: "power2.out"});
+  });
+</script>
+
 {% endblock %}

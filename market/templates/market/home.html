@@ -119,4 +119,49 @@
   </section>
 
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof gsap !== 'undefined') {
+      // Animate sections with stagger
+      gsap.from('section', {
+        duration: 0.6,
+        y: 30,
+        opacity: 0,
+        ease: "power2.out",
+        stagger: 0.1,
+        delay: 0.3
+      });
+      
+      // Animate quick categories
+      gsap.from('.grid.grid-cols-4 > a', {
+        duration: 0.5,
+        scale: 0,
+        ease: "back.out(1.7)",
+        stagger: 0.05,
+        delay: 0.6
+      });
+      
+      // Animate product cards
+      gsap.from('.grid.grid-cols-2 > a', {
+        duration: 0.6,
+        y: 20,
+        opacity: 0,
+        ease: "power2.out",
+        stagger: 0.08,
+        delay: 0.8
+      });
+      
+      // Category hover animations
+      document.querySelectorAll('.grid.grid-cols-4 > a').forEach(cat => {
+        cat.addEventListener('mouseenter', () => {
+          gsap.to(cat.querySelector('div'), {duration: 0.2, scale: 1.1, ease: "power2.out"});
+        });
+        cat.addEventListener('mouseleave', () => {
+          gsap.to(cat.querySelector('div'), {duration: 0.2, scale: 1, ease: "power2.out"});
+        });
+      });
+    }
+  });
+</script>
 {% endblock %}

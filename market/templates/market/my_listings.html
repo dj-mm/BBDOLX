@@ -86,4 +86,37 @@
     <a href="{% url 'product_add' %}" class="text-teal-600 font-semibold">Create your first ad.</a>
   </div>
 {% endif %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof gsap !== 'undefined') {
+      // Animate privacy settings card
+      gsap.from('.bg-white.rounded-xl.shadow-sm', {
+        duration: 0.6,
+        y: 20,
+        opacity: 0,
+        ease: "power2.out",
+        stagger: 0.1
+      });
+      
+      // Animate product grid
+      gsap.from('.grid > div', {
+        duration: 0.5,
+        scale: 0.95,
+        opacity: 0,
+        ease: "back.out(1.7)",
+        stagger: 0.08,
+        delay: 0.3
+      });
+      
+      // Checkbox animation
+      const checkbox = document.querySelector('input[type="checkbox"]');
+      if (checkbox) {
+        checkbox.addEventListener('change', function() {
+          gsap.to(this, {duration: 0.2, scale: 1.1, ease: "power2.out", yoyo: true, repeat: 1});
+        });
+      }
+    }
+  });
+</script>
 {% endblock %}

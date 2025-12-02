@@ -7,6 +7,8 @@
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" integrity="sha512-NcZdtrT77bJr4STcmsGAESr06BYGE8woZdSdEgqnpyqac7sugNO+Tr4bGwGF3MsnEkGKhU2KL2xh6Ec+BqsaHA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="icon" href="{% static 'logo.png' %}">
@@ -190,5 +192,27 @@
     </div>
   </footer>
 
+  <script>
+    // Basic GSAP animations
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof gsap !== 'undefined') {
+        // Animate main content
+        gsap.from('main', {
+          duration: 0.6,
+          y: 20,
+          opacity: 0,
+          ease: "power2.out"
+        });
+        
+        // Animate navbar
+        gsap.from('header', {
+          duration: 0.5,
+          y: -20,
+          opacity: 0,
+          ease: "power2.out"
+        });
+      }
+    });
+  </script>
 </body>
 </html>
