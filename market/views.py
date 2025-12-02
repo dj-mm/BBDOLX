@@ -12,7 +12,7 @@ import random
 import requests
 
 from .forms import StudentRegisterForm, ProductForm
-from .models import Product, Category, EmailOTP
+from .models import Product, Category, EmailOTP, Notification
 
 
 # ---------- HOME ----------

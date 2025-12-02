@@ -4,8 +4,18 @@ from .models import Product
 
 
 class StudentRegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'password-field',
+            'id': 'password'
+        })
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'password-field',
+            'id': 'confirm_password'
+        })
+    )
 
     class Meta:
         model = User
