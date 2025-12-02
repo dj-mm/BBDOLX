@@ -10,6 +10,24 @@
   </a>
 </div>
 
+<!-- Privacy Settings -->
+<div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+  <h2 class="text-sm font-semibold mb-3">Privacy Settings</h2>
+  <form method="post" class="flex items-center gap-3">
+    {% csrf_token %}
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" name="show_name" class="rounded" {% if profile.show_name %}checked{% endif %}>
+      Show my name in seller details
+    </label>
+    <button type="submit" class="text-xs bg-teal-500 text-white px-3 py-1 rounded-full hover:bg-teal-600">
+      Update
+    </button>
+  </form>
+  <p class="text-xs text-slate-500 mt-2">
+    When unchecked, "Hidden" will be shown instead of your username in product listings.
+  </p>
+</div>
+
 {% if products %}
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     {% for product in products %}

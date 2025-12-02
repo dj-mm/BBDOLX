@@ -12,7 +12,7 @@ import random
 import requests
 
 from .forms import StudentRegisterForm, ProductForm
-from .models import Product, Category, EmailOTP, Notification, Rating
+from .models import Product, Category, EmailOTP, Notification, Rating, Profile
 
 
 # ---------- HOME ----------
@@ -221,8 +221,20 @@ def mark_as_sold(request, pk):
 
 @login_required
 def my_listings(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        show_name = request.POST.get('show_name') == 'on'
+        profile.show_name = show_name
+        profile.save()
+        messages.success(request, "Privacy settings updated!")
+        return redirect('my_listings')
+    
     products = Product.objects.filter(owner=request.user).order_by('-created_at')
-    return render(request, 'market/my_listings.html', {'products': products})
+    return render(request, 'market/my_listings.html', {
+        'products': products,
+        'profile': profile
+    })
 
 
 # ---------- MODERATION (staff only) ----------

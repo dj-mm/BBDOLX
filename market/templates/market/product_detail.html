@@ -42,7 +42,7 @@
 
     <div class="bg-white rounded-2xl shadow-sm p-4 space-y-2">
       <p class="text-sm font-semibold">Seller details</p>
-      <p class="text-sm">{{ product.owner.username }}</p>
+      <p class="text-sm">{{ product.get_seller_name }}</p>
       <p class="text-xs text-slate-500">{{ product.owner.email }}</p>
       <p class="text-xs text-slate-500 mt-1">
         Contact the seller via email or campus meetup. Never share OTPs or card details.

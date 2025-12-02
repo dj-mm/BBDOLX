@@ -9,6 +9,7 @@ class Profile(models.Model):
     phone = models.CharField(max_length=15, blank=True)
     branch = models.CharField(max_length=100, blank=True)
     year = models.CharField(max_length=10, blank=True)
+    show_name = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.username
@@ -72,6 +73,10 @@ class Product(models.Model):
 
     def rating_count(self):
         return self.ratings.count()
+
+    def get_seller_name(self):
+        profile, created = Profile.objects.get_or_create(user=self.owner)
+        return self.owner.username if profile.show_name else "Hidden"
 
 
 class EmailOTP(models.Model):
