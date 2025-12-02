@@ -18,6 +18,26 @@
       {% endif %}
       <p class="text-xs text-slate-500">{{ product.city_campus }} • {{ product.created_at|date:"d M, Y" }}</p>
       <p class="text-xs text-slate-500">Category: {{ product.category.name }} • Condition: {{ product.get_condition_display }}</p>
+      
+      <!-- Rating Display -->
+      <div class="flex items-center gap-2 mt-2">
+        <div class="flex text-yellow-400">
+          {% for i in "12345" %}
+            {% if product.average_rating >= i|add:0 %}
+              ⭐
+            {% else %}
+              ☆
+            {% endif %}
+          {% endfor %}
+        </div>
+        <span class="text-xs text-slate-500">
+          {% if product.rating_count %}
+            {{ product.average_rating|floatformat:1 }} ({{ product.rating_count }} rating{{ product.rating_count|pluralize }})
+          {% else %}
+            No ratings yet
+          {% endif %}
+        </span>
+      </div>
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm p-4 space-y-2">
@@ -42,6 +62,25 @@
           </a>
         {% endif %}
       </div>
+    {% elif user.is_authenticated %}
+      <!-- Rating Form -->
+      <div class="bg-white rounded-2xl shadow-sm p-4">
+        <p class="text-sm font-semibold mb-3">Rate this product</p>
+        <form method="post" action="{% url 'rate_product' product.pk %}">
+          {% csrf_token %}
+          <div class="flex gap-1 mb-3">
+            {% for i in "12345" %}
+              <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="{{ forloop.counter }}">
+                ☆
+              </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="stars" id="rating-input" value="0">
+          <button type="submit" class="w-full bg-teal-500 text-white py-2 rounded-full text-sm font-semibold hover:bg-teal-600" disabled id="submit-rating">
+            Submit Rating
+          </button>
+        </form>
+      </div>
     {% endif %}
   </div>
 </div>
@@ -51,4 +90,47 @@
   <h2 class="font-semibold mb-2 text-lg">Description</h2>
   <p class="text-sm text-slate-700 whitespace-pre-line">{{ product.description }}</p>
 </div>
+
+<script>
+  // Star rating functionality
+  const starBtns = document.querySelectorAll('.star-btn');
+  const ratingInput = document.getElementById('rating-input');
+  const submitBtn = document.getElementById('submit-rating');
+  
+  if (starBtns.length > 0) {
+    starBtns.forEach((btn, index) => {
+      btn.addEventListener('click', () => {
+        const rating = index + 1;
+        ratingInput.value = rating;
+        
+        // Update star display
+        starBtns.forEach((star, i) => {
+          if (i < rating) {
+            star.textContent = '⭐';
+            star.classList.add('text-yellow-400');
+            star.classList.remove('text-gray-300');
+          } else {
+            star.textContent = '☆';
+            star.classList.add('text-gray-300');
+            star.classList.remove('text-yellow-400');
+          }
+        });
+        
+        // Enable submit button
+        submitBtn.disabled = false;
+      });
+      
+      // Hover effect
+      btn.addEventListener('mouseenter', () => {
+        const rating = index + 1;
+        starBtns.forEach((star, i) => {
+          if (i < rating) {
+            star.classList.add('text-yellow-400');
+            star.classList.remove('text-gray-300');
+          }
+        });
+      });
+    });
+  }
+</script>
 {% endblock %}

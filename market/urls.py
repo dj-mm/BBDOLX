@@ -24,6 +24,7 @@ urlpatterns = [
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('product/<int:pk>/sold/', views.mark_as_sold, name='product_sold'),
+    path('product/<int:pk>/rate/', views.rate_product, name='rate_product'),
     path('moderation/approve/<int:pk>/', views.approve_product, name='approve_product'),
     path('moderation/pending/', views.pending_products, name='pending_products'),
 

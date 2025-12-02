@@ -12,7 +12,7 @@ import random
 import requests
 
 from .forms import StudentRegisterForm, ProductForm
-from .models import Product, Category, EmailOTP, Notification
+from .models import Product, Category, EmailOTP, Notification, Rating
 
 
 # ---------- HOME ----------
@@ -286,3 +286,18 @@ def pending_products(request):
     return render(request, 'market/pending_products.html', {'products': products})
 
 
+@login_required
+@require_POST
+def rate_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    stars = int(request.POST.get('stars', 0))
+    
+    if 1 <= stars <= 5 and request.user != product.owner:
+        rating, created = Rating.objects.update_or_create(
+            product=product,
+            user=request.user,
+            defaults={'stars': stars}
+        )
+        messages.success(request, f"Rated {stars} stars!")
+    
+    return redirect('product_detail', pk=pk)

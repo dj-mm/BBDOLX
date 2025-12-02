@@ -64,6 +64,15 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+    def average_rating(self):
+        ratings = self.ratings.all()
+        if ratings:
+            return sum(r.stars for r in ratings) / len(ratings)
+        return 0
+
+    def rating_count(self):
+        return self.ratings.count()
+
 
 class EmailOTP(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -85,5 +94,18 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.message[:20]}"
+
+
+class Rating(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    stars = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.title} - {self.stars} stars"
 
 
