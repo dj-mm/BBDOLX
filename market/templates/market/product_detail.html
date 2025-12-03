@@ -39,6 +39,7 @@
 
     <!-- SELLER CARD -->
     <div class="bg-white rounded-2xl shadow-sm p-4 space-y-2">
+      {% if user.is_authenticated %}
       <p class="text-sm font-semibold">Seller details</p>
 
       {# name respect hide_name checkbox #}
@@ -50,7 +51,6 @@
 
       <p class="text-xs text-slate-500">{{ product.owner.email }}</p>
 
-      {% if user.is_authenticated %}
         {# logged-in: can try WhatsApp #}
         {% if product.owner.profile.whatsapp %}
           <p class="text-xs text-slate-500">
