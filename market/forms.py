@@ -1,49 +1,57 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+
 from .models import Product, Profile
 
 
 class StudentRegisterForm(forms.ModelForm):
-    password = forms.CharField(
-        label="Password",
-        widget=forms.PasswordInput
-    )
-    confirm_password = forms.CharField(
-        label="Confirm password",
-        widget=forms.PasswordInput
-    )
+    password = forms.CharField(widget=forms.PasswordInput)
+    confirm_password = forms.CharField(widget=forms.PasswordInput)
 
-    # ✅ NEW: WhatsApp field in signup form
-    whatsapp = forms.CharField(
-        max_length=15,
-        required=False,
-        label="WhatsApp number (optional)",
-        widget=forms.TextInput(attrs={
-            "placeholder": "WhatsApp number for chat with buyers"
-        })
+    # Optional: add a regex validator on username field itself
+    username = forms.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(
+                regex=r'^[a-zA-Z0-9_]{3,20}$',
+                message="Username can contain letters, numbers and underscore only (3–20 characters)."
+            )
+        ]
     )
 
     class Meta:
         model = User
-        # whatsapp is NOT a field on User model, so it stays outside Meta.fields
         fields = ['username', 'email', 'password']
 
-    # Optional: control the order of fields in the template loop
-    field_order = ['username', 'email', 'whatsapp', 'password', 'confirm_password']
-
     def clean_email(self):
-        email = (self.cleaned_data.get('email') or '').strip().lower()
-        allowed = ('@bbdnitm.ac.in', '@bbdniit.ac.in', '@bbdu.org')
+        email = self.cleaned_data.get('email', '').strip().lower()
 
-        if not any(email.endswith(d) for d in allowed):
-            raise forms.ValidationError(
-                "Only @bbdnitm.ac.in, @bbdniit.ac.in or @bbdu.org email IDs are allowed."
+        # Regex: normal email + only allowed domains
+        import re
+        pattern = r'^[\w\.-]+@(bbdnitm\.ac\.in|bbdniit\.ac\.in|bbdu\.org)$'
+        if not re.match(pattern, email):
+            raise ValidationError(
+                "Use your official college email (@bbdnitm.ac.in, @bbdniit.ac.in or @bbdu.org)."
             )
 
-        # prevent duplicate emails
-        if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("This email is already registered.")
+        # Optional: block duplicate emails if needed
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("An account with this email already exists.")
         return email
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password', '')
+
+        # At least 8 chars, 1 letter, 1 digit
+        import re
+        pattern = r'^(?=.*[A-Za-z])(?=.*\d).{8,}$'
+        if not re.match(pattern, password):
+            raise ValidationError(
+                "Password must be at least 8 characters and include at least one letter and one number."
+            )
+        return password
 
     def clean(self):
         cleaned = super().clean()
