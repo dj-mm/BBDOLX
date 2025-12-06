@@ -8,15 +8,12 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.http import JsonResponse
-from .forms import StudentRegisterForm, ProductForm, ProfileForm
-from .models import Product, Category, EmailOTP, Notification, Profile
-
 
 import random
 import requests
 
-from .models import Product, Category, EmailOTP, Notification
-from .forms import StudentRegisterForm, ProductForm
+from .forms import StudentRegisterForm, ProductForm, ProfileForm
+from .models import Product, Category, EmailOTP, Notification, Profile
 
 
 # ---------- HOME ----------
@@ -24,14 +21,15 @@ from .forms import StudentRegisterForm, ProductForm
 def home(request):
     query = request.GET.get("q", "")
     category_slug = request.GET.get("category", "")
-    sort = request.GET.get('sort', 'newest')
+    sort = request.GET.get("sort", "newest")
 
     # only active + approved listings on home
     products = Product.objects.filter(
         is_sold=False,
-        status="APPROVED"
-    ).order_by("-created_at")
+        status="APPROVED",
+    )
 
+    # search
     if query:
         products = products.filter(
             Q(title__icontains=query)
@@ -39,19 +37,17 @@ def home(request):
             | Q(city_campus__icontains=query)
         )
 
+    # category filter
     if category_slug:
         products = products.filter(category__slug=category_slug)
 
-    # Sorting
+    # sorting
     if sort == "low":
-        products = products.order_by('price')
+        products = products.order_by("price")
     elif sort == "high":
-        products = products.order_by('-price')
+        products = products.order_by("-price")
     else:
-        products = products.order_by('-created_at')  # newest first
-
-    categories = Category.objects.all()
-
+        products = products.order_by("-created_at")  # newest first
 
     categories = Category.objects.all()
 
@@ -98,7 +94,7 @@ def send_otp_email(request, user):
     }
 
     try:
-        # DEBUG logs – visible in runserver terminal
+        # DEBUG logs – visible in runserver / PythonAnywhere logs
         print("Sending OTP payload to Apps Script:", payload)
         resp = requests.post(settings.APPS_SCRIPT_OTP_URL, json=payload, timeout=10)
         print("Apps Script response:", resp.status_code, resp.text)
@@ -120,11 +116,12 @@ def register(request):
             user.set_password(form.cleaned_data["password"])
             user.is_active = False
             user.save()
-            # ✅ create/update Profile with WhatsApp number from form
+
+            # create/update Profile with WhatsApp from form
             whatsapp = form.cleaned_data.get("whatsapp", "")
             Profile.objects.update_or_create(
                 user=user,
-                defaults={"whatsapp": whatsapp}
+                defaults={"whatsapp": whatsapp},
             )
 
             send_otp_email(request, user)
@@ -148,7 +145,7 @@ def verify_otp(request):
     if request.method == "POST":
         entered = request.POST.get("otp", "").strip()
 
-        # Check expiry (2 minutes, via model method)
+        # Check expiry (2 minutes)
         if otp_obj.is_expired():
             messages.error(request, "OTP expired. Sending a new one...")
             send_otp_email(request, user)
@@ -162,8 +159,8 @@ def verify_otp(request):
             login(request, user)
             messages.success(request, "Email verified successfully. Welcome to BBDOLX!")
             return redirect("home")
-        else:
-            messages.error(request, "Incorrect OTP. Please try again.")
+
+        messages.error(request, "Incorrect OTP. Please try again.")
 
     return render(request, "market/verify_otp.html")
 
@@ -176,7 +173,7 @@ def resend_otp(request):
         return redirect("register")
 
     user = get_object_or_404(User, id=user_id)
-    send_otp_email(request, user)  # messages handled inside
+    send_otp_email(request, user)
     return redirect("verify_otp")
 
 
@@ -184,13 +181,38 @@ def resend_otp(request):
 
 @login_required
 def product_create(request):
+    # Ensure profile exists
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
+
+        # Check WhatsApp first
+        if not profile.whatsapp:
+            messages.warning(
+                request,
+                "Please add your WhatsApp number in your profile before posting an ad.",
+            )
+            return redirect("profile")  # make sure this URL exists
+
         if form.is_valid():
             product = form.save(commit=False)
             product.owner = request.user
             product.status = "PENDING"  # waiting for admin approval
+
+            # Optional usage checkboxes (from product_form.html)
+            extra_info = []
+            if request.POST.get("usage_light"):
+                extra_info.append("• Lightly used (less than 6 months)")
+            if request.POST.get("usage_long"):
+                extra_info.append("• Used for a long time")
+
+            if extra_info:
+                base_desc = product.description or ""
+                product.description = (base_desc.strip() + "\n\n" + "\n".join(extra_info)).strip()
+
             product.save()
+            messages.success(request, "Your ad has been submitted for review.")
             return redirect("my_listings")
     else:
         form = ProductForm()
@@ -213,7 +235,9 @@ def product_update(request, pk):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
+            # keep simple here; you can also re-apply usage checkboxes if you want
             form.save()
+            messages.success(request, "Ad updated successfully.")
             return redirect("product_detail", pk=product.pk)
     else:
         form = ProductForm(instance=product)
@@ -236,12 +260,18 @@ def mark_as_sold(request, pk):
     messages.success(request, "Listing marked as sold.")
     return redirect("my_listings")
 
-from django.contrib.auth.decorators import login_required
+
+@login_required
+def my_listings(request):
+    products = Product.objects.filter(owner=request.user).order_by("-created_at")
+    return render(request, "market/my_listings.html", {"products": products})
+
+
+# ---------- PROFILE ----------
 
 @login_required
 def edit_profile(request):
-    # make sure profile exists
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    profile, _ = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         form = ProfileForm(request.POST, instance=profile)
@@ -257,26 +287,18 @@ def edit_profile(request):
 
 @login_required
 def profile_view(request):
-    # Get or create profile for the logged-in user
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    profile, _ = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully.")
-            return redirect("profile")   # name we'll use in urls.py
+            return redirect("profile")
     else:
         form = ProfileForm(instance=profile)
 
-    return render(request, "market/profile.html", {
-        "form": form,
-    })
-
-@login_required
-def my_listings(request):
-    products = Product.objects.filter(owner=request.user).order_by("-created_at")
-    return render(request, "market/my_listings.html", {"products": products})
+    return render(request, "market/profile.html", {"form": form})
 
 
 # ---------- MODERATION (ADMIN / STAFF) ----------
@@ -290,11 +312,10 @@ def moderation_dashboard(request):
     status_filter = request.GET.get("status", "PENDING")
 
     products = Product.objects.all().order_by("-created_at")
-    # allow filter by SOLD as well
     if status_filter in ["PENDING", "APPROVED", "REJECTED", "SOLD"]:
         products = products.filter(status=status_filter)
 
-    # small stats including SOLD
+    # Stats including SOLD
     stats_qs = Product.objects.values("status").annotate(total=Count("id"))
     stats = {"PENDING": 0, "APPROVED": 0, "REJECTED": 0, "SOLD": 0}
     for row in stats_qs:
@@ -318,9 +339,8 @@ def approve_product(request, pk):
     - Sold     -> Active again (undo sold)
     """
     product = get_object_or_404(Product, pk=pk)
-
     product.status = "APPROVED"
-    product.is_sold = False          # undo SOLD if needed
+    product.is_sold = False
     product.rejection_reason = ""
     product.save()
 
@@ -353,21 +373,21 @@ def reject_product(request, pk):
         return redirect("moderation_dashboard")
 
     return render(request, "market/reject_form.html", {"product": product})
+
+
 @user_passes_test(staff_required)
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
-    # optional: notify owner that their ad was removed
     Notification.objects.create(
         user=product.owner,
-        message=f"Your ad '{product.title}' was removed by an admin."
+        message=f"Your ad '{product.title}' was removed by an admin.",
     )
 
     product.delete()
     messages.success(request, "Ad deleted permanently.")
     return redirect("moderation_dashboard")
-
 
 
 # ---------- NOTIFICATIONS ----------
@@ -381,8 +401,7 @@ def mark_notification_read(request, pk):
     return JsonResponse({"status": "ok"})
 
 
-# (Optional backwards-compatibility: old 'pending_products' URL)
+# Legacy URL – keeps old /moderation/pending/ working
 @user_passes_test(staff_required)
 def pending_products(request):
-    """Legacy view – redirect to new dashboard."""
     return redirect("moderation_dashboard")

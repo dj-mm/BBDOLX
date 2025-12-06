@@ -6,8 +6,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tne!4+=5cizkx=!7pt^l#0ksv%ralt2f!zpger#ubkm)4=pi@d'
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['bbd.pythonanywhere.com', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [
+    'https://bbd.pythonanywhere.com',
+    'http://localhost',
+    'http://127.0.0.1', 
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -50,14 +54,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bbdolx.wsgi.application'
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -74,31 +76,33 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# -------- Static & media (PythonAnywhere) --------
+# URL that the browser will use
+STATIC_URL = '/static/'
 
-# -------- Static & media --------
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# Extra folders with your custom static files (optional but you already use it)
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
-MEDIA_URL = 'media/'
+# Folder where collectstatic will put everything (admin CSS, etc.)
+# This MUST match the directory in the PythonAnywhere "Static files" config
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # -------- Login / Logout redirects --------
-# django.contrib.auth.urls gives you /accounts/login/ etc.
-# After login, go to home page instead of /accounts/profile/
-LOGIN_REDIRECT_URL = '/'         # or 'home' if you prefer using reverse
-LOGOUT_REDIRECT_URL = '/'        # after logout, also go to home
-# Optional (but nice): where to send unauthenticated users when @login_required hits
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
-
 
 # -------- Apps Script OTP mailer --------
 APPS_SCRIPT_OTP_URL = "https://script.google.com/macros/s/AKfycbyXt0lL1BqgnDQkk0zcfb1ndMxJYDvESQyM-nu-vNkUIDEmqeKa9GcWRphtnUij21xk/exec"

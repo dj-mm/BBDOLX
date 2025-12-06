@@ -37,50 +37,53 @@
       </p>
     </div>
 
+
     <!-- SELLER CARD -->
-    <div class="bg-white rounded-2xl shadow-sm p-4 space-y-2">
-      {% if user.is_authenticated %}
-      <p class="text-sm font-semibold">Seller details</p>
+<div class="bg-white rounded-2xl shadow-sm p-4 space-y-2">
+  <p class="text-sm font-semibold">Seller details</p>
 
-      {# name respect hide_name checkbox #}
-      {% if product.owner.profile.hide_name %}
-        <p class="text-sm font-medium">Hidden User</p>
-      {% else %}
-        <p class="text-sm font-medium">{{ product.owner.username }}</p>
-      {% endif %}
+  <!-- NAME (or generic label if hidden) + WHATSAPP BADGE -->
+  <p class="text-sm flex items-center gap-2">
+    {% if product.owner.profile.hide_name %}
+      <span class="font-medium text-slate-700">BBDOLX Seller</span>
+    {% else %}
+      <span class="font-medium">{{ product.owner.username }}</span>
+    {% endif %}
 
-      <p class="text-xs text-slate-500">{{ product.owner.email }}</p>
+    {% if product.owner.profile.whatsapp %}
+      <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+        ✅ WhatsApp verified
+      </span>
+    {% endif %}
+  </p>
 
-        {# logged-in: can try WhatsApp #}
-        {% if product.owner.profile.whatsapp %}
-          <p class="text-xs text-slate-500">
-            WhatsApp: {{ product.owner.profile.whatsapp }}
-          </p>
+  <!-- EMAIL: only when name is NOT hidden -->
+  {% if not product.owner.profile.hide_name %}
+    <p class="text-xs text-slate-500">{{ product.owner.email }}</p>
+  {% endif %}
 
-          {% if product.status != 'SOLD' %}
-            <a href="https://wa.me/{{ product.owner.profile.whatsapp }}?text=Hi%2C%20I%20saw%20your%20BBDOLX%20ad%20for%3A%20{{ product.title|urlencode }}"
-               target="_blank"
-               class="inline-flex items-center gap-2 mt-2 bg-green-500 text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-green-600">
-              💬 Chat on WhatsApp
-            </a>
-          {% endif %}
-        {% else %}
-          <p class="text-[11px] text-slate-500 mt-1">
-            Seller hasn’t added a WhatsApp number yet.
-          </p>
-        {% endif %}
-      {% else %}
-        {# not logged in: show login button instead of WhatsApp #}
-        <a href="{% url 'login' %}"
-           class="inline-flex items-center justify-center mt-2 bg-teal-500 text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-teal-600">
-          Login to contact seller
+  <!-- WHATSAPP CONTACT -->
+  {% if user.is_authenticated %}
+      {% if product.owner.profile.whatsapp %}
+        <a href="https://wa.me/{{ product.owner.profile.whatsapp }}?text=Hi%2C%20I%20saw%20your%20BBDOLX%20ad%20for%3A%20{{ product.title|urlencode }}"
+           target="_blank"
+           class="inline-flex items-center gap-2 mt-2 bg-green-500 text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-green-600">
+          💬 Chat on WhatsApp
         </a>
       {% endif %}
+  {% else %}
+      <a href="{% url 'login' %}"
+   class="inline-block mt-2 px-4 py-1.5 rounded-full border border-teal-500 text-teal-600 text-xs font-semibold hover:bg-teal-500 hover:text-white transition">
+  Login to view WhatsApp contact
+</a>
 
-      <p class="text-xs text-slate-500 mt-2">
-        Meet only inside campus and never share OTPs, passwords or card details.
-      </p>
-    </div>
+  {% endif %}
+
+  <p class="text-xs text-slate-500 mt-2">
+    Meet only inside campus and never share OTPs, passwords or card details.
+  </p>
+</div>
+
 
     {% if user == product.owner %}
       <div class="bg-white rounded-2xl shadow-sm p-4 flex gap-3">

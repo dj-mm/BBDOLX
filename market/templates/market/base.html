@@ -10,6 +10,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="icon" href="{% static 'logo.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}">
+  <link rel="manifest" href="{% static 'manifest.json' %}">
   <style>
     .card-animate {
       animation: cardIn .35s ease-out;
@@ -27,6 +30,17 @@
       to   { opacity: 1; transform: translateY(0); }
     }
   </style>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker
+          .register("{% static 'sw.js' %}")
+          .catch(function (err) {
+            console.log("SW registration failed:", err);
+          });
+      });
+    }
+  </script>
 </head>
 
 {% if messages %}
@@ -66,6 +80,65 @@
 {% endif %}
 
 <body class="bg-slate-100">
+
+
+ <body class="bg-slate-100">
+
+  <!-- GLOBAL PAGE LOADER -->
+  <div id="pageLoader"
+       class="fixed inset-0 bg-white flex items-center justify-center z-[9999] hidden">
+      <img src="{% static 'loader-logo.png' %}"
+     class="w-20 sm:w-28 md:w-36 lg:w-44 animate-pulse opacity-90"
+     alt="Loading...">
+
+  </div>
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const loader = document.getElementById("pageLoader");
+      if (!loader) return;
+
+      const showLoader = () => {
+        loader.classList.remove("hidden");
+      };
+
+      const hideLoader = () => {
+        loader.classList.add("hidden");
+      };
+
+      // 🔹 Hide loader when page finished loading
+      window.addEventListener("load", hideLoader);
+
+      // 🔹 Show loader on any form submit (login, register, post ad, etc.)
+      document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", function () {
+          showLoader();
+        });
+      });
+
+      // 🔹 Show loader on internal link clicks (same site navigation)
+      document.querySelectorAll("a[href]").forEach(link => {
+        const href = link.getAttribute("href") || "";
+
+        // skip anchors, external links, and new-tab links
+        if (
+          href.startsWith("#") ||
+          href.startsWith("http") ||
+          link.target === "_blank"
+        ) {
+          return;
+        }
+
+        link.addEventListener("click", function () {
+          showLoader();
+        });
+      });
+    });
+  </script>
+
+</style>
+
   <!-- NAVBAR -->
   <header class="bg-white shadow sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
@@ -124,7 +197,7 @@
             + Sell
           </a>
         {% else %}
-          <a href="{% url 'login' %}" class="text-sm font-medium hover:text-teal-600">
+          <a href="{% url 'login' %}" class="border border-teal-500 text-teal-600 px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-teal-500 hover:text-white transition">
             Login
           </a>
           <a href="{% url 'register' %}"
@@ -193,14 +266,18 @@
 
             <form method="post" action="{% url 'logout' %}" class="mt-2">
               {% csrf_token %}
-              <button class="w-full text-left text-sm text-red-500 font-medium py-1">
+             <button class="w-full text-left text-sm text-red-500 font-medium py-1">
                 Logout
               </button>
             </form>
           {% else %}
-            <a href="{% url 'login' %}" class="py-1">
-              Login
-            </a>
+           <div class="text-center mt-2">
+  <a href="{% url 'login' %}"
+     class="inline-block w-full py-2 border border-teal-500 text-teal-600 rounded-full text-sm font-semibold hover:bg-teal-500 hover:text-white transition">
+    Login
+  </a>
+</div>
+
             <a href="{% url 'register' %}"
                class="inline-flex items-center justify-center border border-teal-500 text-teal-600 px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-teal-500 hover:text-white transition">
               Create account
@@ -289,8 +366,8 @@
       <div class="max-w-6xl mx-auto px-4 py-4 text-[13px] text-slate-500 flex flex-col md:flex-row justify-between items-center">
         <p>© {% now "Y" %} BBDOLX — A marketplace for BBD students.</p>
         <p class="mt-2 md:mt-0">
-  Built with ❤️ By 
-  <a href="https://linktr.ee/manash.djmm" target="_blank" 
+  Built with ❤️ By
+  <a href="https://linktr.ee/manash.djmm" target="_blank"
      class="text-teal-600 font-semibold hover:text-teal-700">
     Manash
   </a>
@@ -299,6 +376,31 @@
       </div>
     </div>
   </footer>
+  <script>
+  const loader = document.getElementById("pageLoader");
+
+  // Loader when navigating
+  window.addEventListener("beforeunload", function () {
+    loader.classList.add("show");
+  });
+
+  // Loader on any link click
+  document.querySelectorAll("a[href]").forEach(link => {
+    link.addEventListener("click", function () {
+      if (this.target !== "_blank") {
+        loader.classList.add("show");
+      }
+    });
+  });
+
+  // Loader on form submit (Login, Register, Post Ad etc.)
+  document.querySelectorAll("form").forEach(f => {
+    f.addEventListener("submit", function () {
+      loader.classList.add("show");
+    });
+  });
+</script>
+
 
 </body>
 </html>
