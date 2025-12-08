@@ -389,6 +389,28 @@ def delete_product(request, pk):
     messages.success(request, "Ad deleted permanently.")
     return redirect("moderation_dashboard")
 
+# ---------- STATIC INFO PAGES ----------
+
+def about(request):
+    return render(request, "market/about.html")
+
+def how_it_works(request):
+    return render(request, "market/how_it_works.html")
+
+def campus_safety(request):
+    return render(request, "market/campus_safety.html")
+
+def contact(request):
+    return render(request, "market/contact.html")
+
+
+def privacy_policy(request):
+    return render(request, "market/privacy_policy.html")
+
+def terms_and_conditions(request):
+    return render(request, "market/terms_and_conditions.html")
+def development_team(request):
+    return render(request, "market/development_team.html")
 
 # ---------- NOTIFICATIONS ----------
 

@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{% block title %}BBDOLX{% endblock %}</title>
+  <title>{% block title %}CAMPUS-OLX{% endblock %}</title>
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -146,7 +146,7 @@
       <!-- Logo -->
       <a href="{% url 'home' %}" class="flex items-center gap-2 shrink-0">
   <span class="bg-teal-500 text-white font-extrabold px-2 py-1 rounded">
-    BBD
+    CAMPUS
   </span>
   <span class="font-bold text-xl tracking-tight">OLX</span>
 </a>
@@ -309,43 +309,47 @@
 
       <!-- Column 1 -->
       <div>
-        <h3 class="font-semibold text-slate-700 mb-3">BBDOLX</h3>
+        <h3 class="font-semibold text-slate-700 mb-3">CAMPUS-OLX</h3>
         <ul class="space-y-2 text-slate-500">
-          <li><a href="#" class="hover:text-teal-600">About us</a></li>
-          <li><a href="#" class="hover:text-teal-600">How it works</a></li>
-          <li><a href="#" class="hover:text-teal-600">Campus safety tips</a></li>
-          <li><a href="#" class="hover:text-teal-600">Contact</a></li>
-        </ul>
+  <li><a href="{% url 'about' %}" class="hover:text-teal-600">About us</a></li>
+  <li><a href="{% url 'how_it_works' %}" class="hover:text-teal-600">How it works</a></li>
+  <li><a href="{% url 'campus_safety' %}" class="hover:text-teal-600">Campus safety tips</a></li>
+  <li><a href="{% url 'contact' %}" class="hover:text-teal-600">Contact</a></li>
+</ul>
+
       </div>
 
       <!-- Column 2 -->
       <div>
-        <h3 class="font-semibold text-slate-700 mb-3">Categories</h3>
-        <ul class="space-y-2 text-slate-500">
-          <li><a href="?category=mobiles" class="hover:text-teal-600">Mobiles</a></li>
-          <li><a href="?category=laptops" class="hover:text-teal-600">Laptops</a></li>
-          <li><a href="?category=bikes" class="hover:text-teal-600">Bikes</a></li>
-          <li><a href="?category=electronics" class="hover:text-teal-600">Electronics</a></li>
-          <li><a href="?category=books" class="hover:text-teal-600">Books</a></li>
-        </ul>
-      </div>
+  <h3 class="font-semibold text-slate-700 mb-3">Categories</h3>
+  <ul class="space-y-2 text-slate-500">
+    <li><a href="{% url 'home' %}?category=mobiles" class="hover:text-teal-600">Mobiles</a></li>
+    <li><a href="{% url 'home' %}?category=laptops" class="hover:text-teal-600">Laptops</a></li>
+    <li><a href="{% url 'home' %}?category=bikes" class="hover:text-teal-600">Bikes</a></li>
+    <li><a href="{% url 'home' %}?category=electronics" class="hover:text-teal-600">Electronics</a></li>
+    <li><a href="{% url 'home' %}?category=books" class="hover:text-teal-600">Books</a></li>
+  </ul>
+</div>
+
 
       <!-- Column 3 -->
       <div>
         <h3 class="font-semibold text-slate-700 mb-3">Support</h3>
         <ul class="space-y-2 text-slate-500">
-          <li><a href="#" class="hover:text-teal-600">Report an issue</a></li>
-          <li><a href="#" class="hover:text-teal-600">FAQs</a></li>
-          <li><a href="#" class="hover:text-teal-600">Help center</a></li>
-          <li><a href="#" class="hover:text-teal-600">Privacy policy</a></li>
-          <li><a href="#" class="hover:text-teal-600">Terms & conditions</a></li>
+          
+          <li><a href="{% url 'privacy_policy' %}" class="hover:text-teal-600">Privacy policy</a></li>
+          <li><a href="{% url 'development_team' %}" class="hover:text-teal-600">Development Team</a></li>
+
+
+          
+
         </ul>
       </div>
 
       <!-- Column 4 -->
       <div>
         <h3 class="font-semibold text-slate-700 mb-3">Connect</h3>
-        <p class="text-slate-500 mb-3">Follow BBDOLX on social media</p>
+        <p class="text-slate-500 mb-3">Follow CAMPUS-OLX on social media</p>
 
         <div class="flex gap-3">
           <a href="#" class="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center hover:bg-teal-500 hover:text-white transition">
@@ -364,7 +368,7 @@
 
     <div class="border-t border-slate-200">
       <div class="max-w-6xl mx-auto px-4 py-4 text-[13px] text-slate-500 flex flex-col md:flex-row justify-between items-center">
-        <p>© {% now "Y" %} BBDOLX — A marketplace for BBD students.</p>
+        <p>© {% now "Y" %} CAMPUS-OLX — A marketplace for BBD students.</p>
         <p class="mt-2 md:mt-0">
   Built with ❤️ By
   <a href="https://linktr.ee/manash.djmm" target="_blank"

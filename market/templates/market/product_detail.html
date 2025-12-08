@@ -1,5 +1,5 @@
 {% extends "market/base.html" %}
-{% block title %}{{ product.title }} - BBDOLX{% endblock %}
+{% block title %}{{ product.title }} - CAMPUS-OLX{% endblock %}
 
 {% block content %}
 <div class="grid md:grid-cols-3 gap-6">
@@ -45,7 +45,7 @@
   <!-- NAME (or generic label if hidden) + WHATSAPP BADGE -->
   <p class="text-sm flex items-center gap-2">
     {% if product.owner.profile.hide_name %}
-      <span class="font-medium text-slate-700">BBDOLX Seller</span>
+      <span class="font-medium text-slate-700">CAMPUS-OLX Seller</span>
     {% else %}
       <span class="font-medium">{{ product.owner.username }}</span>
     {% endif %}
@@ -65,7 +65,7 @@
   <!-- WHATSAPP CONTACT -->
   {% if user.is_authenticated %}
       {% if product.owner.profile.whatsapp %}
-        <a href="https://wa.me/{{ product.owner.profile.whatsapp }}?text=Hi%2C%20I%20saw%20your%20BBDOLX%20ad%20for%3A%20{{ product.title|urlencode }}"
+        <a href="https://wa.me/{{ product.owner.profile.whatsapp }}?text=Hi%2C%20I%20saw%20your%20CAMPUS-OLX%20ad%20for%3A%20{{ product.title|urlencode }}"
            target="_blank"
            class="inline-flex items-center gap-2 mt-2 bg-green-500 text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-green-600">
           💬 Chat on WhatsApp
