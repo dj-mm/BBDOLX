@@ -1,6 +1,7 @@
 {% extends "market/base.html" %}
 {% block title %}Admin – Moderate Ads{% endblock %}
 
+
 {% block content %}
 <div class="space-y-6">
 
@@ -78,31 +79,42 @@
   <div class="space-y-3">
     {% for p in products %}
       <div class="bg-white rounded-xl shadow-sm p-4 flex gap-4 items-start border border-slate-100 card-animate">
-        <div class="h-20 w-20 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 relative">
-          <img src="{{ p.image.url }}" class="w-full h-full object-cover">
-          {% if p.status == 'SOLD' %}
-            <span class="absolute bottom-1 left-1 bg-black/75 text-white text-[10px] px-2 py-0.5 rounded">
-              SOLD OUT
-            </span>
-          {% endif %}
-        </div>
+        <div class="h-20 w-20 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 relative cursor-pointer"
+     onclick="openImageModal('{{ p.image.url }}')">
+  <img src="{{ p.image.url }}" class="w-full h-full object-cover hover:scale-105 transition">
+  {% if p.status == 'SOLD' %}
+    <span class="absolute bottom-1 left-1 bg-black/75 text-white text-[10px] px-2 py-0.5 rounded">
+      SOLD OUT
+    </span>
+  {% endif %}
+</div>
+
 
         <div class="flex-1 space-y-1 text-sm">
-          <p class="font-semibold text-slate-900">{{ p.title }}</p>
-          <p class="text-xs text-slate-500">
-            ₹{{ p.price }} • {{ p.category.name }} • {{ p.city_campus }}
-          </p>
-          <p class="text-[11px] text-slate-400">
-            Posted by <span class="font-medium text-slate-600">{{ p.owner.username }}</span>
-            on {{ p.created_at|date:"d M, Y H:i" }}
-          </p>
+  <p class="font-semibold text-slate-900">{{ p.title }}</p>
 
-          {% if p.rejection_reason %}
-            <p class="text-[11px] text-rose-500">
-              Last reject reason: {{ p.rejection_reason }}
-            </p>
-          {% endif %}
-        </div>
+  <p class="text-xs text-slate-500">
+    ₹{{ p.price }} • {{ p.category.name }} • {{ p.city_campus }}
+  </p>
+
+  <p class="text-[11px] text-slate-400">
+    Posted by <span class="font-medium text-slate-600">{{ p.owner.username }}</span>
+    on {{ p.created_at|date:"d M, Y H:i" }}
+  </p>
+
+  <!-- Description -->
+  <p class="text-[12px] text-slate-700 bg-slate-50 border border-slate-200 rounded-lg p-2 mt-2">
+    <span class="font-semibold text-slate-600">Description:</span><br>
+    {{ p.description|linebreaksbr }}
+  </p>
+
+  {% if p.rejection_reason %}
+    <p class="text-[11px] text-rose-500 mt-1">
+      Last reject reason: {{ p.rejection_reason }}
+    </p>
+  {% endif %}
+</div>
+
 
         <!-- Actions -->
         <div class="flex flex-col gap-2 text-xs w-44">
@@ -201,6 +213,27 @@
     </form>
   </div>
 </div>
+<!-- Image Zoom Modal -->
+<div id="imageModal"
+     class="fixed inset-0 bg-black/95 hidden z-50">
+
+  <!-- Close Button (always visible) -->
+  <button onclick="closeImageModal()"
+          class="fixed top-4 right-4 z-50 bg-white text-black w-11 h-11 rounded-full flex items-center justify-center shadow-lg text-xl">
+    ✕
+  </button>
+
+  <!-- Image Container -->
+  <div class="w-full h-full flex items-center justify-center p-3 overflow-hidden">
+    <img id="zoomedImage"
+         src=""
+         class="max-w-full max-h-full object-contain rounded-xl shadow-2xl">
+  </div>
+</div>
+
+
+
+
 
 <script>
   function openRejectModal(id, title) {
@@ -220,5 +253,18 @@
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
+  function openImageModal(src) {
+  const modal = document.getElementById("imageModal");
+  const img = document.getElementById("zoomedImage");
+  img.src = src;
+  modal.classList.remove("hidden");
+}
+
+function closeImageModal() {
+  const modal = document.getElementById("imageModal");
+  modal.classList.add("hidden");
+}
+
+
 </script>
 {% endblock %}

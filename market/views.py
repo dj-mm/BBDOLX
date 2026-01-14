@@ -232,21 +232,29 @@ def product_detail(request, pk):
 @login_required
 def product_update(request, pk):
     product = get_object_or_404(Product, pk=pk, owner=request.user)
+
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
+
         if form.is_valid():
-            # keep simple here; you can also re-apply usage checkboxes if you want
-            form.save()
+            updated = form.save(commit=False)
+
+            # 🔒 If approved → keep old image
+            if product.status == "APPROVED":
+                updated.image = product.image
+
+            updated.save()
             messages.success(request, "Ad updated successfully.")
             return redirect("product_detail", pk=product.pk)
+
     else:
         form = ProductForm(instance=product)
 
-    return render(
-        request,
-        "market/product_form.html",
-        {"form": form, "title": "Edit Ad"},
-    )
+    return render(request, "market/product_form.html", {
+        "form": form,
+        "title": "Edit Ad"
+    })
+
 
 
 @login_required

@@ -4,31 +4,45 @@
 {% block content %}
 <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-sm p-6">
   <h1 class="text-xl font-semibold mb-4">{{ title }}</h1>
+
   <form method="post" enctype="multipart/form-data" class="space-y-4">
     {% csrf_token %}
+
     {% for field in form %}
       <div class="text-sm">
         <label class="block mb-1 font-medium">{{ field.label }}</label>
-        {{ field }}
+
+        {% if field.name == "image" and form.instance.status == "APPROVED" %}
+          <p class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            Image is locked because this ad is approved by admin.
+          </p>
+        {% else %}
+          {{ field }}
+        {% endif %}
+
         {% if field.help_text %}
           <p class="text-[11px] text-slate-400">{{ field.help_text }}</p>
         {% endif %}
+
         {% for error in field.errors %}
           <p class="text-[11px] text-red-500">{{ error }}</p>
         {% endfor %}
       </div>
     {% endfor %}
 
-    <!-- Optional usage checkboxes (view reads usage_light / usage_long) -->
-    <div class="text-xs mt-1 space-y-1">
-      <p class="font-medium text-slate-700 mb-1">How much is it used? (optional)</p>
-      <label class="inline-flex items-center gap-2">
-        <input type="checkbox" name="usage_light" class="h-4 w-4 text-teal-600 border-slate-300 rounded">
+    <!-- Usage checkboxes -->
+    <div class="text-xs mt-2 space-y-2">
+      <p class="font-medium text-slate-700">How much is it used? (optional)</p>
+
+      <label class="flex items-center gap-2">
+        <input type="checkbox" name="usage_light"
+               class="h-4 w-4 text-teal-600 border-slate-300 rounded">
         <span>Lightly used (less than 6 months)</span>
       </label>
-      <br>
-      <label class="inline-flex items-center gap-2">
-        <input type="checkbox" name="usage_long" class="h-4 w-4 text-teal-600 border-slate-300 rounded">
+
+      <label class="flex items-center gap-2">
+        <input type="checkbox" name="usage_long"
+               class="h-4 w-4 text-teal-600 border-slate-300 rounded">
         <span>Used for a long time</span>
       </label>
     </div>
@@ -41,17 +55,15 @@
 </div>
 
 <script>
-  // basic Tailwind styling for Django widgets
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('input, select, textarea').forEach(el => {
-      // don't apply text styling to checkboxes
-      if (el.type === 'checkbox') return;
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type === 'checkbox') return;
 
-      el.classList.add(
-        'w-full','border','border-slate-300','rounded-lg','px-3','py-2','text-sm',
-        'focus:outline-none','focus:ring-2','focus:ring-teal-500'
-      );
-    });
+    el.classList.add(
+      'w-full','border','border-slate-300','rounded-lg','px-3','py-2','text-sm',
+      'focus:outline-none','focus:ring-2','focus:ring-teal-500'
+    );
   });
+});
 </script>
 {% endblock %}

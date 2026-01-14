@@ -104,6 +104,10 @@ class ProductForm(forms.ModelForm):
             'image',
             'city_campus',
         ]
+    def clean_image(self):
+        if self.instance.pk and self.instance.status == "APPROVED":
+            return self.instance.image
+        return self.cleaned_data.get("image")
 
 
     def clean_title(self):
