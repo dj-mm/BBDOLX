@@ -69,15 +69,16 @@
     Edit
   </a>
 
-  {% if product.status != 'SOLD' %}
-    <form method="post" action="{% url 'product_sold' product.pk %}" class="flex-1">
-      {% csrf_token %}
-      <button type="submit"
-              class="w-full text-center text-[11px] rounded-full py-1 bg-teal-500 text-white hover:bg-teal-600">
-        Mark sold
-      </button>
-    </form>
-  {% endif %}
+ {% if product.status != 'PENDING' and product.status != 'SOLD' %}
+  <form method="post" action="{% url 'product_sold' product.pk %}" class="flex-1">
+    {% csrf_token %}
+    <button type="submit"
+            class="w-full text-center text-[11px] rounded-full py-1 bg-teal-500 text-white hover:bg-teal-600">
+      Mark sold
+    </button>
+  </form>
+{% endif %}
+
 </div>
 
         </div>
