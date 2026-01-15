@@ -28,6 +28,8 @@ path('development-team/', views.development_team, name='development_team'),
 
     # ---------- SELLER DASHBOARD ----------
     path('my-listings/', views.my_listings, name='my_listings'),
+    path('product/<int:pk>/delete/', views.delete_my_product, name='product_delete'),
+
 
     # ---------- MODERATION (ADMIN / STAFF ONLY) ----------
     path('moderation/', views.moderation_dashboard, name='moderation_dashboard'),

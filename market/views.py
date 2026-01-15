@@ -267,6 +267,12 @@ def mark_as_sold(request, pk):
     product.save()
     messages.success(request, "Listing marked as sold.")
     return redirect("my_listings")
+def delete_my_product(request, pk):
+    product = get_object_or_404(Product, pk=pk, owner=request.user)
+
+    product.delete()
+    messages.success(request, "Your ad has been deleted successfully.")
+    return redirect("my_listings")
 
 
 @login_required
