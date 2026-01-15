@@ -270,6 +270,14 @@ def mark_as_sold(request, pk):
 def delete_my_product(request, pk):
     product = get_object_or_404(Product, pk=pk, owner=request.user)
 
+    # ❌ Do not allow delete if approved
+    if product.status == "APPROVED":
+        messages.error(
+            request,
+            "Approved ads cannot be deleted. Please contact admin."
+        )
+        return redirect("my_listings")
+
     product.delete()
     messages.success(request, "Your ad has been deleted successfully.")
     return redirect("my_listings")
