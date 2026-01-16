@@ -80,9 +80,35 @@
 {% endif %}
 
 <body class="bg-slate-100">
+{% if user.is_authenticated and show_whatsapp_popup and request.resolver_match.url_name != 'profile' %}
+<div id="whatsappModal"
+     class="fixed inset-0 bg-black/50 z-[9998] flex items-center justify-center">
+  <div class="bg-white rounded-2xl shadow-lg max-w-sm w-full p-6 text-center">
+    <h2 class="text-lg font-semibold mb-2">Add WhatsApp Number</h2>
+    <p class="text-sm text-slate-600 mb-4">
+      To sell items on CAMPUS-OLX, please add your WhatsApp number first.
+    </p>
+
+    <a href="{% url 'profile' %}"
+       class="inline-block bg-teal-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-teal-600">
+      Add WhatsApp
+    </a>
+
+    <button onclick="closeWhatsappModal()"
+            class="block mx-auto mt-3 text-xs text-slate-400 hover:text-slate-600">
+      Maybe later
+    </button>
+  </div>
+</div>
+{% endif %}
 
 
- <body class="bg-slate-100">
+
+
+
+
+
+
 
   <!-- GLOBAL PAGE LOADER -->
   <div id="pageLoader"
@@ -92,6 +118,8 @@
      alt="Loading...">
 
   </div>
+
+
 
 
     <script>
@@ -192,10 +220,13 @@
             </button>
           </form>
 
-          <a href="{% url 'product_add' %}"
-             class="inline-flex items-center gap-1 border border-teal-500 text-teal-600 px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-teal-500 hover:text-white transition">
-            + Sell
-          </a>
+          {% if user.is_authenticated and has_whatsapp %}
+  <a href="{% url 'product_add' %}"
+     class="bg-teal-500 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-teal-600">
+    + Sell
+  </a>
+{% endif %}
+
         {% else %}
           <a href="{% url 'login' %}" class="border border-teal-500 text-teal-600 px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-teal-500 hover:text-white transition">
             Login
@@ -259,10 +290,13 @@
               </a>
             {% endif %}
 
-            <a href="{% url 'product_add' %}"
-               class="mt-1 inline-flex items-center justify-center border border-teal-500 text-teal-600 px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-teal-500 hover:text-white transition">
-              + Sell something
-            </a>
+            {% if user.is_authenticated and has_whatsapp %}
+  <a href="{% url 'product_add' %}"
+     class="bg-teal-500 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-teal-600">
+    + Sell
+  </a>
+{% endif %}
+
 
             <form method="post" action="{% url 'logout' %}" class="mt-2">
               {% csrf_token %}
@@ -323,6 +357,7 @@
       <div>
   <h3 class="font-semibold text-slate-700 mb-3">Categories</h3>
   <ul class="space-y-2 text-slate-500">
+    <li><a href="{% url 'home' %}?category=mobiles" class="hover:text-teal-600">Mobiles</a></li>
     <li><a href="{% url 'home' %}?category=laptops" class="hover:text-teal-600">Laptops</a></li>
     <li><a href="{% url 'home' %}?category=bikes" class="hover:text-teal-600">Bikes</a></li>
     <li><a href="{% url 'home' %}?category=electronics" class="hover:text-teal-600">Electronics</a></li>
@@ -403,6 +438,16 @@
     });
   });
 </script>
+<script>
+  function closeWhatsappModal() {
+    const modal = document.getElementById("whatsappModal");
+    if (modal) modal.remove();
+  }
+</script>
+
+
+
+
 
 
 </body>

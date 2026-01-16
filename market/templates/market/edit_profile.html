@@ -1,9 +1,21 @@
 {% extends "market/base.html" %}
 {% block title %}Edit Profile - CAMPUS-OLX{% endblock %}
 
+{# ✅ STEP 2: Disable WhatsApp popup on this page #}
+{% block disable_whatsapp_popup %}true{% endblock %}
+
 {% block content %}
 <div class="max-w-md mx-auto bg-white rounded-2xl shadow p-6 mt-6 card-animate">
   <h1 class="text-xl font-semibold mb-1">Edit profile</h1>
+
+  {% if not form.instance.whatsapp %}
+    <!-- ✅ Inline warning instead of popup -->
+    <div class="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-800 mb-4">
+      ⚠️ WhatsApp number is required to post ads on CAMPUS-OLX.
+      Please add your number below.
+    </div>
+  {% endif %}
+
   <p class="text-xs text-slate-500 mb-4">
     Add your <span class="font-semibold text-teal-600">WhatsApp number</span> so buyers can chat with you
     directly from your ads. You can also choose to hide your name from buyers.
@@ -23,7 +35,12 @@
     {% for field in form %}
       <div class="text-sm {% if field.name == 'hide_name' %}flex items-center gap-2{% endif %}">
         {% if field.name != 'hide_name' %}
-          <label class="block mb-1 font-medium">{{ field.label }}</label>
+          <label class="block mb-1 font-medium">
+            {{ field.label }}
+            {% if field.name == 'whatsapp' %}
+              <span class="text-red-500">*</span>
+            {% endif %}
+          </label>
         {% endif %}
 
         {{ field }}

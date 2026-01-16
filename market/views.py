@@ -67,12 +67,19 @@ def home(request):
     ]
 
     context = {
-        "products": products,
-        "categories": categories,
-        "query": query,
-        "category_slug": category_slug,
-        "quick_categories": quick_categories,
-    }
+    "products": products,
+    "categories": categories,
+    "query": query,
+    "category_slug": category_slug,
+    "quick_categories": quick_categories,
+    "has_whatsapp": (
+    request.user.is_authenticated
+    and hasattr(request.user, "profile")
+    and bool(getattr(request.user.profile, "whatsapp", ""))
+),
+
+}
+
     return render(request, "market/home.html", context)
 
 
@@ -286,25 +293,52 @@ def delete_my_product(request, pk):
 @login_required
 def my_listings(request):
     products = Product.objects.filter(owner=request.user).order_by("-created_at")
-    return render(request, "market/my_listings.html", {"products": products})
+
+    has_whatsapp = bool(
+        hasattr(request.user, "profile") and request.user.profile.whatsapp
+    )
+
+    return render(
+        request,
+        "market/my_listings.html",
+        {
+            "products": products,
+            "has_whatsapp": has_whatsapp,
+        },
+    )
 
 
 # ---------- PROFILE ----------
+
 
 @login_required
 def edit_profile(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
+        old_whatsapp = profile.whatsapp  # BEFORE save
         form = ProfileForm(request.POST, instance=profile)
+
         if form.is_valid():
-            form.save()
+            updated_profile = form.save()
+            new_whatsapp = updated_profile.whatsapp  # AFTER save
+
+            # ✅ WhatsApp ADDED
+            if not old_whatsapp and new_whatsapp:
+                request.session["whatsapp_added_now"] = True
+
+            # ✅ WhatsApp REMOVED
+            if old_whatsapp and not new_whatsapp:
+                request.session["whatsapp_removed_now"] = True
+
             messages.success(request, "Profile updated successfully.")
             return redirect("edit_profile")
+
     else:
         form = ProfileForm(instance=profile)
 
     return render(request, "market/edit_profile.html", {"form": form})
+
 
 
 @login_required

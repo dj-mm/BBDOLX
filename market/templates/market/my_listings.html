@@ -4,10 +4,13 @@
 {% block content %}
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-xl font-semibold">My listings</h1>
-  <a href="{% url 'product_add' %}"
-     class="text-sm bg-teal-500 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-teal-600">
-    + Post new ad
-  </a>
+  {% if has_whatsapp %}
+<a href="{% url 'product_add' %}"
+   class="text-sm bg-teal-500 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-teal-600">
+  + Post new ad
+</a>
+{% endif %}
+
 </div>
 
 {% if products %}

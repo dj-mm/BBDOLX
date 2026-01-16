@@ -2,15 +2,22 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.contrib.auth.password_validation import validate_password
+import re
 
 from .models import Product, Profile
 
 
 class StudentRegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+    password = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Password"
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Confirm password"
+    )
 
-    # Optional: add a regex validator on username field itself
     username = forms.CharField(
         max_length=150,
         validators=[
@@ -25,41 +32,51 @@ class StudentRegisterForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'password']
 
+    # ✅ EMAIL VALIDATION
     def clean_email(self):
         email = self.cleaned_data.get('email', '').strip().lower()
 
-        # Regex: normal email + only allowed domains
-        import re
         pattern = r'^[\w\.-]+@(bbdnitm\.ac\.in|bbdniit\.ac\.in|bbdu\.org)$'
         if not re.match(pattern, email):
             raise ValidationError(
                 "Use your official college email (@bbdnitm.ac.in, @bbdniit.ac.in or @bbdu.org)."
             )
 
-        # Optional: block duplicate emails if needed
         if User.objects.filter(email=email).exists():
             raise ValidationError("An account with this email already exists.")
+
         return email
 
+    # ✅ PASSWORD VALIDATION (MAIN FIX)
     def clean_password(self):
-        password = self.cleaned_data.get('password', '')
+        password = self.cleaned_data.get('password')
 
-        # At least 8 chars, 1 letter, 1 digit
-        import re
-        pattern = r'^(?=.*[A-Za-z])(?=.*\d).{8,}$'
-        if not re.match(pattern, password):
-            raise ValidationError(
-                "Password must be at least 8 characters and include at least one letter and one number."
-            )
+        # Django built-in validators (length, common, similarity, numeric)
+        validate_password(password)
+
+        # Extra rule: must contain at least 1 letter & 1 digit
+        if not re.search(r'[A-Za-z]', password):
+            raise ValidationError("Password must contain at least one letter.")
+
+        if not re.search(r'\d', password):
+            raise ValidationError("Password must contain at least one number.")
+
         return password
 
+    # ✅ CONFIRM PASSWORD MATCH
     def clean(self):
         cleaned = super().clean()
         p1 = cleaned.get('password')
         p2 = cleaned.get('confirm_password')
+
         if p1 and p2 and p1 != p2:
             self.add_error('confirm_password', "Passwords do not match.")
+
         return cleaned
+
+from django import forms
+from django.core.exceptions import ValidationError
+from .models import Profile
 
 
 class ProfileForm(forms.ModelForm):
@@ -91,6 +108,75 @@ class ProfileForm(forms.ModelForm):
             }),
         }
 
+    # ✅ STEP 1: WhatsApp validation (REQUIRED)
+    def clean_whatsapp(self):
+        whatsapp = (self.cleaned_data.get('whatsapp') or '').strip()
+
+        if not whatsapp:
+            raise ValidationError(
+                "WhatsApp number is required to post ads on CAMPUS-OLX."
+            )
+
+        if not whatsapp.isdigit():
+            raise ValidationError(
+                "WhatsApp number must contain digits only."
+            )
+
+        if len(whatsapp) != 10:
+            raise ValidationError(
+                "Enter a valid 10-digit WhatsApp number."
+            )
+
+        return whatsapp
+    def clean_branch(self):
+        branch = (self.cleaned_data.get('branch') or '').strip()
+
+        if not branch:
+            raise ValidationError("Branch is required.")
+
+        if not re.match(r'^[A-Za-z ]+$', branch):
+            raise ValidationError("Branch must contain letters only.")
+
+        if len(branch) < 2:
+            raise ValidationError("Enter a valid branch name.")
+
+        return branch.upper()
+
+    # ✅ Year validation
+    def clean_year(self):
+        year = (self.cleaned_data.get('year') or '').strip()
+
+        allowed_years = ['1', '2', '3', '4', '1st', '2nd', '3rd', 'final']
+
+        if not year:
+            raise ValidationError("Year is required.")
+
+        if year.lower() not in allowed_years:
+            raise ValidationError(
+                "Enter a valid year (1st, 2nd, 3rd, 4th or Final)."
+            )
+
+        return year.capitalize()
+     # ✅ Phone number validation (OPTIONAL)
+    def clean_phone(self):
+        phone = (self.cleaned_data.get('phone') or '').strip()
+
+        # Allow empty phone number
+        if not phone:
+            return phone
+
+        if not phone.isdigit():
+            raise ValidationError(
+                "Phone number must contain digits only."
+            )
+
+        if len(phone) != 10:
+            raise ValidationError(
+                "Enter a valid 10-digit phone number."
+            )
+
+        return phone
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -104,11 +190,37 @@ class ProductForm(forms.ModelForm):
             'image',
             'city_campus',
         ]
+
     def clean_image(self):
+        image = self.cleaned_data.get("image")
+
+        # 🔒 Approved ad → image cannot be changed
         if self.instance.pk and self.instance.status == "APPROVED":
             return self.instance.image
-        return self.cleaned_data.get("image")
 
+        if not image:
+            raise ValidationError("Please upload an image.")
+
+        max_size = 2 * 1024 * 1024  # 2 MB
+        if image.size > max_size:
+            raise ValidationError(
+                "Image size is more than 2 MB. Please try again with a smaller image."
+            )
+
+        return image
+
+    def clean(self):
+        cleaned_data = super().clean()
+        image = cleaned_data.get("image")
+
+        # 🔁 Double safety (prevents silent bypass)
+        if image and image.size > 2 * 1024 * 1024:
+            self.add_error(
+                "image",
+                "Image size exceeds 2 MB. Please upload a smaller image."
+            )
+
+        return cleaned_data
 
     def clean_title(self):
         title = (self.cleaned_data.get('title') or '').strip()
