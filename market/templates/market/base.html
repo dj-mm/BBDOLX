@@ -332,6 +332,26 @@
       }
     </script>
   </header>
+<button id="floatingCreateAd"
+<button id="floatingCreateAd"
+        class="fixed right-4 bottom-24 z-[9999]
+               flex items-center gap-3
+               bg-white px-4 py-3 rounded-full
+               shadow-xl border border-slate-200
+               hover:shadow-2xl transition-all
+               animate-float">
+
+  <!-- Logo -->
+  <img src="{% static 'favicon.png' %}"
+       alt="CAMPUS OLX"
+       class="w-8 h-8 animate-spin-slow">
+
+  <!-- Text -->
+  <span class="font-semibold text-slate-800">
+    Create Ad
+  </span>
+</button>
+
 
   <main class="max-w-6xl mx-auto px-4 py-6">
     {% block content %}{% endblock %}
@@ -444,6 +464,52 @@
     if (modal) modal.remove();
   }
 </script>
+<script>
+document.getElementById("floatingCreateAd").addEventListener("click", function () {
+  const isLoggedIn = {{ user.is_authenticated|yesno:"true,false" }};
+  const hasWhatsapp = {{ has_whatsapp|yesno:"true,false" }};
+
+  if (!isLoggedIn) {
+    // 🔑 Redirect to login with next page
+    window.location.href = "{% url 'login' %}?next={% url 'product_add' %}";
+    return;
+  }
+
+  if (!hasWhatsapp) {
+    // 💬 Open WhatsApp popup
+    if (typeof openWhatsappModal === "function") {
+      openWhatsappModal();
+    } else {
+      window.location.href = "{% url 'profile' %}";
+    }
+    return;
+  }
+
+  // ✅ All good → create ad
+  window.location.href = "{% url 'product_add' %}";
+});
+</script>
+<style>
+  @keyframes float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 10s linear infinite;
+}
+
+</style>
 
 
 
