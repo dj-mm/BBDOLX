@@ -332,25 +332,24 @@
       }
     </script>
   </header>
-<button id="floatingCreateAd"
-<button id="floatingCreateAd"
-        class="fixed right-4 bottom-24 z-[9999]
-               flex items-center gap-3
-               bg-white px-4 py-3 rounded-full
-               shadow-xl border border-slate-200
-               hover:shadow-2xl transition-all
-               animate-float">
+<button
+  id="floatingCreateAd"
+  class="fixed right-4 bottom-24 z-[9999]
+         flex items-center gap-3
+         bg-white px-4 py-3 rounded-full
+         shadow-xl border border-slate-200
+         hover:shadow-2xl transition-all
+         animate-float">
 
-  <!-- Logo -->
   <img src="{% static 'favicon.png' %}"
        alt="CAMPUS OLX"
        class="w-8 h-8 animate-spin-slow">
 
-  <!-- Text -->
   <span class="font-semibold text-slate-800">
     Create Ad
   </span>
 </button>
+
 
 
   <main class="max-w-6xl mx-auto px-4 py-6">
@@ -434,61 +433,66 @@
       </div>
     </div>
   </footer>
+
+
   <script>
-  const loader = document.getElementById("pageLoader");
-
-  // Loader when navigating
-  window.addEventListener("beforeunload", function () {
-    loader.classList.add("show");
-  });
-
-  // Loader on any link click
-  document.querySelectorAll("a[href]").forEach(link => {
-    link.addEventListener("click", function () {
-      if (this.target !== "_blank") {
-        loader.classList.add("show");
-      }
-    });
-  });
-
-  // Loader on form submit (Login, Register, Post Ad etc.)
-  document.querySelectorAll("form").forEach(f => {
-    f.addEventListener("submit", function () {
-      loader.classList.add("show");
-    });
-  });
-</script>
-<script>
   function closeWhatsappModal() {
     const modal = document.getElementById("whatsappModal");
     if (modal) modal.remove();
   }
 </script>
-<script>
-document.getElementById("floatingCreateAd").addEventListener("click", function () {
-  const isLoggedIn = {{ user.is_authenticated|yesno:"true,false" }};
-  const hasWhatsapp = {{ has_whatsapp|yesno:"true,false" }};
 
-  if (!isLoggedIn) {
-    // 🔑 Redirect to login with next page
-    window.location.href = "{% url 'login' %}?next={% url 'product_add' %}";
-    return;
+
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const loader = document.getElementById("pageLoader");
+
+  const showLoader = () => {
+    if (loader) loader.classList.remove("hidden");
+  };
+
+  // 🔹 Links
+  document.querySelectorAll("a[href]").forEach(link => {
+    link.addEventListener("click", function () {
+      if (this.target !== "_blank") {
+        showLoader();
+      }
+    });
+  });
+
+  // 🔹 Forms
+  document.querySelectorAll("form").forEach(form => {
+    form.addEventListener("submit", function () {
+      showLoader();
+    });
+  });
+
+  // 🔹 Floating Create Ad Button
+  const createAdBtn = document.getElementById("floatingCreateAd");
+  if (createAdBtn) {
+    createAdBtn.addEventListener("click", function () {
+      showLoader();
+
+      const isLoggedIn = {{ user.is_authenticated|yesno:"true,false" }};
+      const hasWhatsapp = {{ has_whatsapp|yesno:"true,false" }};
+
+      if (!isLoggedIn) {
+        window.location.href = "{% url 'login' %}?next={% url 'product_add' %}";
+        return;
+      }
+
+      if (!hasWhatsapp) {
+        window.location.href = "{% url 'profile' %}";
+        return;
+      }
+
+      window.location.href = "{% url 'product_add' %}";
+    });
   }
-
-  if (!hasWhatsapp) {
-    // 💬 Open WhatsApp popup
-    if (typeof openWhatsappModal === "function") {
-      openWhatsappModal();
-    } else {
-      window.location.href = "{% url 'profile' %}";
-    }
-    return;
-  }
-
-  // ✅ All good → create ad
-  window.location.href = "{% url 'product_add' %}";
 });
 </script>
+
 <style>
   @keyframes float {
   0%   { transform: translateY(0); }
